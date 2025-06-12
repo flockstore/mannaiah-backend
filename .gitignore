@@ -1,0 +1,42 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Build and release directories
+bin/
+build/
+dist/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE configs
+.vscode/
+.idea/
+*.swp
+
+# Log and temp files
+*.log
+*.tmp
+
+# Go module lock files (intentionally ignored everywhere)
+**/go.sum
+
+# Vendor folder (if using vendoring)
+vendor/
+
+# Generated protobuf or Swagger files
+proto/**/*.pb.go
+proto/**/*.grpc.go
+docs/
+gen/
+
+# Ignore OpenAPI generated files (if using swaggo or similar)
+docs/swagger.yaml
+docs/swagger.json
