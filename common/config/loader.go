@@ -2,17 +2,66 @@ package config
 
 import (
 	"fmt"
-	"strings"
-
+	"github.com/go-playground/validator/v10"
+	"github.com/mcuadros/go-defaults"
 	"github.com/spf13/viper"
+	"reflect"
+	"strings"
 )
 
-// Load reads configuration from YAML and environment variables.
-// It returns the config, a boolean indicating if a config file was found, and an error.
-//
-// Example:
-//
-//	cfg, found, err := Load[GlobalConfig]("config.yaml")
+// validator instance for struct-level validation
+var validate = validator.New()
+
+// Default sets default values defined via struct tags.
+func Default(cfg any) {
+	defaults.SetDefaults(cfg)
+}
+
+// brokenConfig es intencionalmente un tipo simple incompatible con el input que pasaremos.
+type brokenConfig struct {
+	Port int `mapstructure:"port"`
+}
+
+// bindEnvs binds ENV variables recursively to all fields with a mapstructure tag.
+func bindEnvs(v *viper.Viper, prefix string, t reflect.Type) {
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		return
+	}
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		// Skip unexported
+		if field.PkgPath != "" {
+			continue
+		}
+
+		tag := field.Tag.Get("mapstructure")
+		if tag == "" || tag == "-" {
+			continue
+		}
+
+		fullKey := tag
+		if prefix != "" {
+			fullKey = prefix + "." + tag
+		}
+
+		// Recursively bind nested structs
+		if field.Type.Kind() == reflect.Struct {
+			bindEnvs(v, fullKey, field.Type)
+		} else {
+			envKey := strings.ToUpper(strings.ReplaceAll(fullKey, ".", "_"))
+			_ = v.BindEnv(fullKey, envKey)
+		}
+	}
+}
+
+// Load reads configuration from YAML file and environment variables.
+// It unmarshalls the config into type T, applies environment overrides,
+// sets defaults, and validates it using validator.v10.
 func Load[T any](configPath string) (*T, bool, error) {
 	v := viper.New()
 
@@ -22,20 +71,23 @@ func Load[T any](configPath string) (*T, bool, error) {
 	v.SetConfigFile(configPath)
 	v.SetConfigType("yaml")
 
+	var raw T
+	bindEnvs(v, "", reflect.TypeOf(raw))
+
 	fileFound := false
 	if err := v.ReadInConfig(); err == nil {
 		fileFound = true
 	}
 
-	var cfg T
-
-	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fileFound, fmt.Errorf("failed to unmarshal structure before binding: %w", err)
+	if err := v.Unmarshal(&raw); err != nil {
+		return nil, fileFound, fmt.Errorf("failed to unmarshal configuration: %w", err)
 	}
 
-	if err := v.Unmarshal(&cfg); err != nil {
-		return nil, fileFound, fmt.Errorf("failed to unmarshal final config: %w", err)
+	Default(&raw)
+
+	if err := validate.Struct(&raw); err != nil {
+		return nil, fileFound, fmt.Errorf("validation failed: %w", err)
 	}
 
-	return &cfg, fileFound, nil
+	return &raw, fileFound, nil
 }
