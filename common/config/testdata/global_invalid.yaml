@@ -1,0 +1,7 @@
+# Invalid because:
+# - service_name is missing (required)
+# - port is 0 (must be > 0)
+# - log_level is missing (required)
+# - app_env is "qa" which is not in the allowed enum
+port: 0
+app_env: qa

@@ -40,6 +40,3 @@ gen/
 # Ignore OpenAPI generated files (if using swaggo or similar)
 docs/swagger.yaml
 docs/swagger.json
-
-# Test fixtures
-**/testdata/

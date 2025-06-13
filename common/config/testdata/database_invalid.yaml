@@ -1,0 +1,4 @@
+db_max_pool: 0
+db_min_idle: -1
+db_max_conn_lifetime: -100
+db_debug: true

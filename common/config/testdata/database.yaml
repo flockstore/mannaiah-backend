@@ -1,0 +1,5 @@
+database_url: "postgres://user:pass@localhost:5432/mannaiah"
+db_max_pool: 25
+db_min_idle: 5
+db_max_conn_lifetime: 600
+db_debug: true

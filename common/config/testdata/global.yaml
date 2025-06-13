@@ -1,0 +1,4 @@
+service_name: contacts
+port: 8081
+log_level: debug
+app_env: dev
