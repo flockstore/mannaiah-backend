@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"github.com/flockstore/mannaiah-backend/common/config"
 	"github.com/jackc/pgx/v5/pgconn"
 	"time"
 
@@ -16,15 +17,15 @@ type PgxClient struct {
 }
 
 // Connect creates a new PostgreSQL connection pool using pgx.
-func Connect(ctx context.Context, cfg Config) (*PgxClient, error) {
-	pgxCfg, err := pgxpool.ParseConfig(cfg.DSN)
+func Connect(ctx context.Context, cfg config.DatabaseConfig) (*PgxClient, error) {
+	pgxCfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	pgxCfg.MaxConns = cfg.MaxConns
-	pgxCfg.MinConns = cfg.MinConns
-	pgxCfg.MaxConnLifetime = time.Duration(cfg.ConnMaxLifetime) * time.Second
+	pgxCfg.MaxConns = int32(cfg.MaxPool)
+	pgxCfg.MinConns = int32(cfg.MinIdle)
+	pgxCfg.MaxConnLifetime = time.Duration(cfg.MaxConnLifetime) * time.Second
 
 	pool, err := pgxpool.NewWithConfig(ctx, pgxCfg)
 	if err != nil {

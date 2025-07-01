@@ -17,11 +17,6 @@ func Default(cfg any) {
 	defaults.SetDefaults(cfg)
 }
 
-// brokenConfig es intencionalmente un tipo simple incompatible con el input que pasaremos.
-type brokenConfig struct {
-	Port int `mapstructure:"port"`
-}
-
 // bindEnvs binds ENV variables recursively to all fields with a mapstructure tag.
 func bindEnvs(v *viper.Viper, prefix string, t reflect.Type) {
 	if t.Kind() == reflect.Ptr {

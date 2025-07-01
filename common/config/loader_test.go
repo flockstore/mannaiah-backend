@@ -8,6 +8,11 @@ import (
 	"testing"
 )
 
+// brokenConfig incompatible broken type.
+type brokenConfig struct {
+	Port int `mapstructure:"port"`
+}
+
 // testStruct is a mock struct with nested fields and mapstructure tags.
 type testStruct struct {
 	StringField string       `mapstructure:"string_field"`
