@@ -46,7 +46,8 @@ type Options struct {
 func New(opts Options) *Server {
 
 	app := fiber.New(fiber.Config{
-		ErrorHandler: defaultErrorHandler,
+		ErrorHandler:          defaultErrorHandler,
+		DisableStartupMessage: true,
 	})
 
 	registerMiddlewares(app)
