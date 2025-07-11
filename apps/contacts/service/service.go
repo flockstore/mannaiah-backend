@@ -42,17 +42,20 @@ func (s *contactService) List() ([]*domain.Contact, error) {
 }
 
 // Update applies a patch to a contact and updates its timestamp.
-func (s *contactService) Update(id string, patch *domain.ContactPatch) error {
+func (s *contactService) Update(id string, patch *domain.ContactPatch) (*domain.Contact, error) {
 	existing, err := s.repo.GetByID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if existing == nil {
-		return errors.New("contact not found")
+		return nil, errors.New("contact not found")
 	}
 
 	domain.ApplyPatch(existing, patch)
 	existing.UpdatedAt = time.Now()
 
-	return s.repo.Save(existing)
+	if err := s.repo.Save(existing); err != nil {
+		return nil, err
+	}
+	return existing, nil
 }

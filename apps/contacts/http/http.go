@@ -1,18 +1,25 @@
 package http
 
 import (
+	"fmt"
 	"github.com/flockstore/mannaiah-backend/apps/contacts/domain"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"strings"
 )
 
 // Handler manages HTTP routes for contact operations.
 type Handler struct {
-	service domain.ContactService
+	service  domain.ContactService
+	validate *validator.Validate
 }
 
 // New creates a new Handler with the given ContactService.
 func New(service domain.ContactService) *Handler {
-	return &Handler{service: service}
+	return &Handler{
+		service:  service,
+		validate: validator.New(),
+	}
 }
 
 // RegisterRoutes mounts contact routes on the given router group.
@@ -20,21 +27,26 @@ func (h *Handler) RegisterRoutes(router fiber.Router) {
 	router.Post("/", h.CreateContact)
 	router.Get("/", h.ListContacts)
 	router.Get("/:id", h.GetContact)
+	router.Patch("/:id", h.PatchContact)
 	router.Delete("/:id", h.DeleteContact)
 }
 
 // CreateContact handles POST /contacts to create a new contact.
 func (h *Handler) CreateContact(c *fiber.Ctx) error {
-	var contact domain.Contact
-	if err := c.BodyParser(&contact); err != nil {
+
+	var input ContactInput
+	if err := c.BodyParser(&input); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid JSON")
 	}
-
-	if err := h.service.Create(&contact); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	if err := h.validate.Struct(&input); err != nil {
+		return mapValidationErrors(err)
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(contact)
+	domainContact := ToDomainContact(input)
+	if err := h.service.Create(domainContact); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.Status(fiber.StatusCreated).JSON(ToResponseDTO(domainContact))
 }
 
 // GetContact handles GET /contacts/:id to retrieve a contact by ID.
@@ -44,7 +56,7 @@ func (h *Handler) GetContact(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
-	return c.JSON(contact)
+	return c.JSON(ToResponseDTO(contact))
 }
 
 // DeleteContact handles DELETE /contacts/:id to remove a contact by ID.
@@ -62,5 +74,40 @@ func (h *Handler) ListContacts(c *fiber.Ctx) error {
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(contacts)
+	response := make([]ContactResponse, len(contacts))
+	for i, contact := range contacts {
+		response[i] = ToResponseDTO(contact)
+	}
+	return c.JSON(response)
+}
+
+// PatchContact handles PATCH /contacts/:id to partially update a contact.
+func (h *Handler) PatchContact(c *fiber.Ctx) error {
+	id := c.Params("id")
+	var patch ContactPatchInput
+	if err := c.BodyParser(&patch); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid JSON")
+	}
+	if err := h.validate.Struct(&patch); err != nil {
+		return mapValidationErrors(err)
+	}
+
+	domainPatch := ToDomainPatch(patch)
+	updated, err := h.service.Update(id, domainPatch)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(ToResponseDTO(updated))
+}
+
+// mapValidationErrors converts validator errors into readable messages.
+func mapValidationErrors(err error) error {
+	if errs, ok := err.(validator.ValidationErrors); ok {
+		var msg []string
+		for _, e := range errs {
+			msg = append(msg, fmt.Sprintf("field '%s' failed on '%s'", e.Field(), e.Tag()))
+		}
+		return fiber.NewError(fiber.StatusBadRequest, strings.Join(msg, ", "))
+	}
+	return fiber.NewError(fiber.StatusBadRequest, "validation failed")
 }
