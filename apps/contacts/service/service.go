@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/flockstore/mannaiah-backend/common/util"
 	"time"
 
 	"github.com/flockstore/mannaiah-backend/apps/contacts/domain"
@@ -60,8 +61,17 @@ func (s *contactService) List() ([]*domain.Contact, error) {
 // Update applies a patch to a contact and updates its timestamp.
 func (s *contactService) Update(id string, patch *domain.ContactPatch) (*domain.Contact, error) {
 
-	if err := domain.ValidateNames(*patch.LegalName, *patch.FirstName, *patch.LastName); err != nil {
-		return nil, err
+	// Check if any of the value exists (Prevents null pointer) and performs validation if
+	// any update candidate is present.
+	leg, f, l :=
+		util.SafeDeref(patch.LegalName, ""),
+		util.SafeDeref(patch.FirstName, ""),
+		util.SafeDeref(patch.LastName, "")
+
+	if leg != "" || f != "" || l != "" {
+		if err := domain.ValidateNames(leg, f, l); err != nil {
+			return nil, err
+		}
 	}
 
 	existing, err := s.repo.GetByID(id)

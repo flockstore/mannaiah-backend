@@ -1,6 +1,8 @@
 package domain
 
-import "github.com/flockstore/mannaiah-backend/common/domain"
+import (
+	"github.com/flockstore/mannaiah-backend/common/domain"
+)
 
 // DocumentType represents the type of identification document.
 type DocumentType string
@@ -54,6 +56,7 @@ type Contact struct {
 
 // ValidateNames  check if name combination is correct
 func ValidateNames(legal, first, last string) error {
+
 	if legal != "" && (first != "" || last != "") {
 		return ErrInvalidNameCombination
 	}

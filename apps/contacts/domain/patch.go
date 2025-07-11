@@ -30,8 +30,11 @@ type ContactPatch struct {
 }
 
 // ApplyPatch applies only the non-nil fields from a ContactPatch into the given Contact.
-// This ensures safe, explicit mutation and prevents accidental field changes.
+// It safely ignores any nil fields and ensures explicit, partial updates.
 func ApplyPatch(c *Contact, patch *ContactPatch) {
+	if c == nil || patch == nil {
+		return
+	}
 
 	if patch.LegalName != nil {
 		c.LegalName = *patch.LegalName
@@ -57,5 +60,4 @@ func ApplyPatch(c *Contact, patch *ContactPatch) {
 	if patch.Email != nil {
 		c.Email = *patch.Email
 	}
-
 }
