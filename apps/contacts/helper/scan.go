@@ -14,21 +14,10 @@ func ScanContact(scanner pgx.Row) (*domain.Contact, error) {
 	var c domain.Contact
 
 	err := scanner.Scan(
-		&c.ID,
-		&c.CreatedAt,
-		&c.UpdatedAt,
-		&c.DeletedAt,
-		&c.DocumentType,
-		&c.DocumentType,
-		&c.DocumentNumber,
-		&c.FirstName,
-		&c.LastName,
-		&c.LegalName,
-		&c.Address,
-		&c.AddressExtra,
-		&c.CityCode,
-		&c.Phone,
-		&c.Email,
+		&c.ID, &c.DocumentType, &c.DocumentNumber, &c.LegalName,
+		&c.FirstName, &c.LastName, &c.Address, &c.AddressExtra,
+		&c.CityCode, &c.Phone, &c.Email,
+		&c.CreatedAt, &c.UpdatedAt, &c.DeletedAt,
 	)
 
 	if errors.Is(err, pgx.ErrNoRows) {

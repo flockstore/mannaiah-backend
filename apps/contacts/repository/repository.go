@@ -65,7 +65,7 @@ func (r *postgresContactRepository) GetByDocument(docType domain.DocumentType, d
 		       address, address_extra, city_code, phone, email,
 		       created_at, updated_at
 		FROM contacts
-		WHERE doc_type = $1 AND doc_number = $2
+		WHERE doc_type = $1 AND doc_number = $2 AND deleted_at is NULL
 	`
 
 	row := r.db.QueryRow(context.Background(), query, docType, docNumber)
@@ -74,7 +74,7 @@ func (r *postgresContactRepository) GetByDocument(docType domain.DocumentType, d
 
 // Delete removes a Contact by ID from the database.
 func (r *postgresContactRepository) Delete(id string) error {
-	query := `DELETE FROM contacts WHERE id = $1`
+	query := `UPDATE contacts SET deleted_at = NOW(), updated_at = NOW() WHERE id = $1 AND deleted_at IS NULL`
 	_, err := r.db.Exec(context.Background(), query, id)
 	return err
 }
@@ -85,7 +85,7 @@ func (r *postgresContactRepository) List() ([]*domain.Contact, error) {
 		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
 		       address, address_extra, city_code, phone, email,
 		       created_at, updated_at
-		FROM contacts
+		FROM contacts WHERE deleted_at is NULL
 	`
 
 	rows, err := r.db.Query(context.Background(), query)
