@@ -18,7 +18,6 @@ func ToDomainContact(input ContactInput) *domain.Contact {
 		Address:        input.Address,
 		AddressExtra:   input.AddressExtra,
 		CityCode:       input.CityCode,
-		DepartmentCode: input.DepartmentCode,
 		Phone:          input.Phone,
 		Email:          input.Email,
 	}
@@ -29,15 +28,14 @@ func ToDomainContact(input ContactInput) *domain.Contact {
 // This function is used to apply partial updates to an existing contact.
 func ToDomainPatch(input ContactPatchInput) *domain.ContactPatch {
 	return &domain.ContactPatch{
-		LegalName:      input.LegalName,
-		FirstName:      input.FirstName,
-		LastName:       input.LastName,
-		Address:        input.Address,
-		AddressExtra:   input.AddressExtra,
-		CityCode:       input.CityCode,
-		DepartmentCode: input.DepartmentCode,
-		Phone:          input.Phone,
-		Email:          input.Email,
+		LegalName:    input.LegalName,
+		FirstName:    input.FirstName,
+		LastName:     input.LastName,
+		Address:      input.Address,
+		AddressExtra: input.AddressExtra,
+		CityCode:     input.CityCode,
+		Phone:        input.Phone,
+		Email:        input.Email,
 	}
 }
 
@@ -55,7 +53,6 @@ func ToResponseDTO(c *domain.Contact) ContactResponse {
 		Address:        c.Address,
 		AddressExtra:   c.AddressExtra,
 		CityCode:       c.CityCode,
-		DepartmentCode: c.DepartmentCode,
 		Phone:          c.Phone,
 		Email:          c.Email,
 		CreatedAt:      c.CreatedAt.Format(time.RFC3339),

@@ -25,21 +25,20 @@ func (r *postgresContactRepository) Save(c *domain.Contact) error {
 		INSERT INTO contacts (
 			id, doc_type, doc_number, legal_name,
 			first_name, last_name, address, address_extra,
-			city_code, state_code, phone, email,
+			city_code, phone, email,
 			created_at, updated_at
 		)
 		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
 		ON CONFLICT (id) DO UPDATE SET
 			doc_type=$2, doc_number=$3, legal_name=$4,
 			first_name=$5, last_name=$6, address=$7, address_extra=$8,
-			city_code=$9, state_code=$10, phone=$11, email=$12,
-			updated_at=$14
+			city_code=$9, phone=$10, email=$11, created_at=$12, updated_at=$13
 	`
 
 	_, err := r.db.Exec(context.Background(), query,
 		c.ID, c.DocumentType, c.DocumentNumber, c.LegalName,
 		c.FirstName, c.LastName, c.Address, c.AddressExtra,
-		c.CityCode, c.DepartmentCode, c.Phone, c.Email,
+		c.CityCode, c.Phone, c.Email,
 		c.CreatedAt, c.UpdatedAt,
 	)
 	return err
@@ -49,7 +48,7 @@ func (r *postgresContactRepository) Save(c *domain.Contact) error {
 func (r *postgresContactRepository) GetByID(id string) (*domain.Contact, error) {
 	query := `
 		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
-		       address, address_extra, city_code, state_code, phone, email,
+		       address, address_extra, city_code, phone, email,
 		       created_at, updated_at
 		FROM contacts
 		WHERE id = $1
@@ -63,7 +62,7 @@ func (r *postgresContactRepository) GetByID(id string) (*domain.Contact, error) 
 func (r *postgresContactRepository) GetByDocument(docType domain.DocumentType, docNumber string) (*domain.Contact, error) {
 	query := `
 		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
-		       address, address_extra, city_code, state_code, phone, email,
+		       address, address_extra, city_code, phone, email,
 		       created_at, updated_at
 		FROM contacts
 		WHERE doc_type = $1 AND doc_number = $2
@@ -84,7 +83,7 @@ func (r *postgresContactRepository) Delete(id string) error {
 func (r *postgresContactRepository) List() ([]*domain.Contact, error) {
 	query := `
 		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
-		       address, address_extra, city_code, state_code, phone, email,
+		       address, address_extra, city_code, phone, email,
 		       created_at, updated_at
 		FROM contacts
 	`

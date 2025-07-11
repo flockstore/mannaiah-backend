@@ -26,7 +26,6 @@ func ScanContact(scanner pgx.Row) (*domain.Contact, error) {
 		&c.Address,
 		&c.AddressExtra,
 		&c.CityCode,
-		&c.DepartmentCode,
 		&c.Phone,
 		&c.Email,
 	)

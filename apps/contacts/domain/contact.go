@@ -50,7 +50,4 @@ type Contact struct {
 
 	// CityCode represents the city or town code (e.g. DANE).
 	CityCode string
-
-	// DepartmentCode represents the department code (e.g. DANE).
-	DepartmentCode string
 }

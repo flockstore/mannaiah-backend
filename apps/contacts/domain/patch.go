@@ -22,9 +22,6 @@ type ContactPatch struct {
 	// CityCode is the city or town code (optional).
 	CityCode *string
 
-	// DepartmentCode is the department or region code (optional).
-	DepartmentCode *string
-
 	// Phone is the updated phone number (optional).
 	Phone *string
 
@@ -53,9 +50,6 @@ func ApplyPatch(c *Contact, patch *ContactPatch) {
 	}
 	if patch.CityCode != nil {
 		c.CityCode = *patch.CityCode
-	}
-	if patch.DepartmentCode != nil {
-		c.DepartmentCode = *patch.DepartmentCode
 	}
 	if patch.Phone != nil {
 		c.Phone = *patch.Phone

@@ -10,7 +10,6 @@ type ContactInput struct {
 	Address        string `json:"address"`        // Main address of the contact
 	AddressExtra   string `json:"addressExtra"`   // Additional address information (optional)
 	CityCode       string `json:"cityCode"`       // City code following standard catalog
-	DepartmentCode string `json:"stateCode"`      // Department or state code
 	Phone          string `json:"phone"`          // Contact phone number
 	Email          string `json:"email"`          // Contact email address
 }
@@ -18,15 +17,14 @@ type ContactInput struct {
 // ContactPatchInput allows partial updates to a contact.
 // All fields are optional and represented as pointers to detect changes.
 type ContactPatchInput struct {
-	LegalName      *string `json:"legalName,omitempty"`    // Updated legal name
-	FirstName      *string `json:"firstName,omitempty"`    // Updated first name
-	LastName       *string `json:"lastName,omitempty"`     // Updated last name
-	Address        *string `json:"address,omitempty"`      // Updated main address
-	AddressExtra   *string `json:"addressExtra,omitempty"` // Updated address extra info
-	CityCode       *string `json:"cityCode,omitempty"`     // Updated city code
-	DepartmentCode *string `json:"stateCode,omitempty"`    // Updated department/state code
-	Phone          *string `json:"phone,omitempty"`        // Updated phone number
-	Email          *string `json:"email,omitempty"`        // Updated email address
+	LegalName    *string `json:"legalName,omitempty"`    // Updated legal name
+	FirstName    *string `json:"firstName,omitempty"`    // Updated first name
+	LastName     *string `json:"lastName,omitempty"`     // Updated last name
+	Address      *string `json:"address,omitempty"`      // Updated main address
+	AddressExtra *string `json:"addressExtra,omitempty"` // Updated address extra info
+	CityCode     *string `json:"cityCode,omitempty"`     // Updated city code
+	Phone        *string `json:"phone,omitempty"`        // Updated phone number
+	Email        *string `json:"email,omitempty"`        // Updated email address
 }
 
 // ContactResponse represents the data returned to the client after operations.
@@ -40,7 +38,6 @@ type ContactResponse struct {
 	Address        string `json:"address"`        // Main address
 	AddressExtra   string `json:"addressExtra"`   // Additional address details
 	CityCode       string `json:"cityCode"`       // City code
-	DepartmentCode string `json:"stateCode"`      // State or department code
 	Phone          string `json:"phone"`          // Phone number
 	Email          string `json:"email"`          // Email address
 	CreatedAt      string `json:"createdAt"`      // ISO8601 timestamp of creation

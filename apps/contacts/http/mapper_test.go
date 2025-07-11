@@ -21,7 +21,6 @@ func TestToDomainContact(t *testing.T) {
 		Address:        "Main St",
 		AddressExtra:   "Apt 101",
 		CityCode:       "05001",
-		DepartmentCode: "05",
 		Phone:          "3001234567",
 		Email:          "john@example.com",
 	}
@@ -35,7 +34,6 @@ func TestToDomainContact(t *testing.T) {
 		Address:        "Main St",
 		AddressExtra:   "Apt 101",
 		CityCode:       "05001",
-		DepartmentCode: "05",
 		Phone:          "3001234567",
 		Email:          "john@example.com",
 	}
@@ -62,7 +60,6 @@ func TestToResponseDTO(t *testing.T) {
 		Address:        "2nd Ave",
 		AddressExtra:   "Suite 202",
 		CityCode:       "11001",
-		DepartmentCode: "11",
 		Phone:          "3012345678",
 		Email:          "jane@example.com",
 		Auditable: bdomain.Auditable{
@@ -81,7 +78,6 @@ func TestToResponseDTO(t *testing.T) {
 		Address:        "2nd Ave",
 		AddressExtra:   "Suite 202",
 		CityCode:       "11001",
-		DepartmentCode: "11",
 		Phone:          "3012345678",
 		Email:          "jane@example.com",
 		CreatedAt:      now.Format(time.RFC3339),
@@ -104,27 +100,24 @@ func TestToDomainPatch(t *testing.T) {
 	phone := "3001112233"
 	legalName := "Alice Legal"
 	address := "Calle 123"
-	dept := "05"
 	email := "alice@example.com"
 
 	input := ContactPatchInput{
-		FirstName:      &name,
-		LastName:       &last,
-		Phone:          &phone,
-		LegalName:      &legalName,
-		Address:        &address,
-		DepartmentCode: &dept,
-		Email:          &email,
+		FirstName: &name,
+		LastName:  &last,
+		Phone:     &phone,
+		LegalName: &legalName,
+		Address:   &address,
+		Email:     &email,
 	}
 
 	expected := &domain.ContactPatch{
-		FirstName:      &name,
-		LastName:       &last,
-		Phone:          &phone,
-		LegalName:      &legalName,
-		Address:        &address,
-		DepartmentCode: &dept,
-		Email:          &email,
+		FirstName: &name,
+		LastName:  &last,
+		Phone:     &phone,
+		LegalName: &legalName,
+		Address:   &address,
+		Email:     &email,
 	}
 
 	actual := ToDomainPatch(input)

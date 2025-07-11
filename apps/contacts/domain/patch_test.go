@@ -25,7 +25,6 @@ func TestApplyPatchContact(t *testing.T) {
 		Address:        "Calle 1",
 		AddressExtra:   "Apto 202",
 		CityCode:       "05001",
-		DepartmentCode: "05",
 		Phone:          "3001234567",
 		Email:          "carlos@flock.com",
 	}
@@ -50,7 +49,6 @@ func TestApplyPatchContact(t *testing.T) {
 		Address:        "Calle 1",
 		AddressExtra:   "Apto 202",
 		CityCode:       "05001",
-		DepartmentCode: "05",
 		Phone:          newPhone,
 		Email:          newEmail,
 	}
