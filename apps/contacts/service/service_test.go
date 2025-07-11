@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/flockstore/mannaiah-backend/common/util"
 	"testing"
 	"time"
 
@@ -29,11 +30,6 @@ func newLegalEntity() *domain.Contact {
 		DocumentNumber: "654321",
 		LegalName:      "Empresa S.A.",
 	}
-}
-
-// pointer returns a pointer to the given value.
-func pointer[T any](v T) *T {
-	return &v
 }
 
 // TestCreate_Success ensures a valid contact is saved correctly.
@@ -179,8 +175,8 @@ func TestUpdate_InvalidCombination(t *testing.T) {
 	existing.ID = id
 
 	patch := &domain.ContactPatch{
-		LegalName: pointer("Empresa"),
-		FirstName: pointer("Carlos"),
+		LegalName: util.Pointer("Empresa"),
+		FirstName: util.Pointer("Carlos"),
 	}
 
 	_, err := svc.Update(id, patch)
@@ -221,7 +217,7 @@ func TestUpdate_SaveFails(t *testing.T) {
 	existing := newValidContact()
 	existing.ID = id
 	patch := &domain.ContactPatch{
-		Email: pointer("new@example.com"),
+		Email: util.Pointer("new@example.com"),
 	}
 
 	repo.On("GetByID", id).Return(existing, nil)

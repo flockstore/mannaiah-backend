@@ -7,3 +7,8 @@ func SafeDeref[T any](ptr *T, fallback T) T {
 	}
 	return fallback
 }
+
+// Pointer returns a pointer to the given value.
+func Pointer[T any](v T) *T {
+	return &v
+}
