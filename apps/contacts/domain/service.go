@@ -8,6 +8,9 @@ type ContactService interface {
 	// Get retrieves a contact by its ID.
 	Get(id string) (*Contact, error)
 
+	// Update applies partial updates to an existing contact.
+	Update(id string, patch *ContactPatch) error
+
 	// Delete removes a contact by its ID.
 	Delete(id string) error
 

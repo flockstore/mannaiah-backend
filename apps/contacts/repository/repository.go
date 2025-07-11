@@ -2,40 +2,25 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	"github.com/flockstore/mannaiah-backend/apps/contacts/domain"
 	"github.com/flockstore/mannaiah-backend/apps/contacts/helper"
 	"github.com/flockstore/mannaiah-backend/common/database"
-	"github.com/google/uuid"
 )
 
 // postgresContactRepository implements domain.ContactRepository using PostgreSQL and pgx.
-//
-// It performs direct SQL execution using the pgx driver for maximum control and performance.
-// Each method maps the domain.Contact entity to/from database rows.
 type postgresContactRepository struct {
-	db database.PgxClient
+	db database.DB
 }
 
 // NewPostgresContactRepository creates a new instance of ContactRepository using PostgreSQL.
 func NewPostgresContactRepository(db database.PgxClient) domain.ContactRepository {
-	return &postgresContactRepository{db: db}
+	return &postgresContactRepository{db: &db}
 }
 
 // Save inserts or updates a Contact in the database.
-//
-// If the Contact has no ID, a new UUID is assigned, and timestamps are initialized.
-// On conflict by ID, it performs an update of all fields except CreatedAt.
+// Assumes the Contact entity has already been fully constructed (ID, timestamps, etc.) by the domain/service layer.
 func (r *postgresContactRepository) Save(c *domain.Contact) error {
-	if c.ID == "" {
-		c.ID = uuid.NewString()
-		c.CreatedAt = time.Now()
-		c.UpdatedAt = c.CreatedAt
-	} else {
-		c.UpdatedAt = time.Now()
-	}
-
 	query := `
 		INSERT INTO contacts (
 			id, doc_type, doc_number, legal_name,
@@ -61,24 +46,28 @@ func (r *postgresContactRepository) Save(c *domain.Contact) error {
 }
 
 // GetByID retrieves a Contact by its ID.
-//
-// Returns the Contact if found, otherwise nil and an error.
 func (r *postgresContactRepository) GetByID(id string) (*domain.Contact, error) {
-	query := `SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
-		address, address_extra, city_code, state_code, phone, email, created_at, updated_at
-		FROM contacts WHERE id = $1`
+	query := `
+		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
+		       address, address_extra, city_code, state_code, phone, email,
+		       created_at, updated_at
+		FROM contacts
+		WHERE id = $1
+	`
 
 	row := r.db.QueryRow(context.Background(), query, id)
 	return helper.ScanContact(row)
 }
 
 // GetByDocument retrieves a Contact by its document type and number.
-//
-// Returns the Contact if found, otherwise nil and an error.
 func (r *postgresContactRepository) GetByDocument(docType domain.DocumentType, docNumber string) (*domain.Contact, error) {
-	query := `SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
-		address, address_extra, city_code, state_code, phone, email, created_at, updated_at
-		FROM contacts WHERE doc_type = $1 AND doc_number = $2`
+	query := `
+		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
+		       address, address_extra, city_code, state_code, phone, email,
+		       created_at, updated_at
+		FROM contacts
+		WHERE doc_type = $1 AND doc_number = $2
+	`
 
 	row := r.db.QueryRow(context.Background(), query, docType, docNumber)
 	return helper.ScanContact(row)
@@ -92,12 +81,13 @@ func (r *postgresContactRepository) Delete(id string) error {
 }
 
 // List returns all Contacts from the database.
-//
-// Rows are scanned one by one using ScanContact and accumulated into a slice.
 func (r *postgresContactRepository) List() ([]*domain.Contact, error) {
-	query := `SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
-		address, address_extra, city_code, state_code, phone, email, created_at, updated_at
-		FROM contacts`
+	query := `
+		SELECT id, doc_type, doc_number, legal_name, first_name, last_name,
+		       address, address_extra, city_code, state_code, phone, email,
+		       created_at, updated_at
+		FROM contacts
+	`
 
 	rows, err := r.db.Query(context.Background(), query)
 	if err != nil {
