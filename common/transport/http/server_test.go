@@ -30,7 +30,7 @@ func TestServer_Healthz(t *testing.T) {
 	require.Equal(t, 200, resp.StatusCode)
 }
 
-// TestServer_ErrorHandler verifies that the error handler returns standardized JSON.
+// TestServer_ErrorHandler verifies that the error http returns standardized JSON.
 func TestServer_ErrorHandler(t *testing.T) {
 	log := logger.New("debug", nil)
 

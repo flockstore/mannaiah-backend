@@ -1,4 +1,4 @@
-package handler
+package http
 
 import (
 	"github.com/flockstore/mannaiah-backend/apps/contacts/domain"
