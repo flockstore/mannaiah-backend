@@ -14,8 +14,8 @@ type postgresContactRepository struct {
 }
 
 // NewPostgresContactRepository creates a new instance of ContactRepository using PostgreSQL.
-func NewPostgresContactRepository(db database.PgxClient) domain.ContactRepository {
-	return &postgresContactRepository{db: &db}
+func NewPostgresContactRepository(db database.DB) domain.ContactRepository {
+	return &postgresContactRepository{db: db}
 }
 
 // Save inserts or updates a Contact in the database.
