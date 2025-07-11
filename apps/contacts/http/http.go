@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	"fmt"
 	"github.com/flockstore/mannaiah-backend/apps/contacts/domain"
 	"github.com/go-playground/validator/v10"
@@ -33,10 +34,9 @@ func (h *Handler) RegisterRoutes(router fiber.Router) {
 
 // CreateContact handles POST /contacts to create a new contact.
 func (h *Handler) CreateContact(c *fiber.Ctx) error {
-
 	var input ContactInput
 	if err := c.BodyParser(&input); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid JSON")
+		return fiber.NewError(fiber.StatusBadRequest, "invalid JSON")
 	}
 	if err := h.validate.Struct(&input); err != nil {
 		return mapValidationErrors(err)
@@ -44,8 +44,9 @@ func (h *Handler) CreateContact(c *fiber.Ctx) error {
 
 	domainContact := ToDomainContact(input)
 	if err := h.service.Create(domainContact); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return MapDomainErrorToFiber(err)
 	}
+
 	return c.Status(fiber.StatusCreated).JSON(ToResponseDTO(domainContact))
 }
 
@@ -54,7 +55,7 @@ func (h *Handler) GetContact(c *fiber.Ctx) error {
 	id := c.Params("id")
 	contact, err := h.service.Get(id)
 	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound, err.Error())
+		return MapDomainErrorToFiber(err)
 	}
 	return c.JSON(ToResponseDTO(contact))
 }
@@ -63,7 +64,7 @@ func (h *Handler) GetContact(c *fiber.Ctx) error {
 func (h *Handler) DeleteContact(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if err := h.service.Delete(id); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return MapDomainErrorToFiber(err)
 	}
 	return c.SendStatus(fiber.StatusNoContent)
 }
@@ -86,7 +87,7 @@ func (h *Handler) PatchContact(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var patch ContactPatchInput
 	if err := c.BodyParser(&patch); err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid JSON")
+		return fiber.NewError(fiber.StatusBadRequest, "invalid JSON")
 	}
 	if err := h.validate.Struct(&patch); err != nil {
 		return mapValidationErrors(err)
@@ -95,14 +96,15 @@ func (h *Handler) PatchContact(c *fiber.Ctx) error {
 	domainPatch := ToDomainPatch(patch)
 	updated, err := h.service.Update(id, domainPatch)
 	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+		return MapDomainErrorToFiber(err)
 	}
 	return c.JSON(ToResponseDTO(updated))
 }
 
 // mapValidationErrors converts validator errors into readable messages.
 func mapValidationErrors(err error) error {
-	if errs, ok := err.(validator.ValidationErrors); ok {
+	var errs validator.ValidationErrors
+	if errors.As(err, &errs) {
 		var msg []string
 		for _, e := range errs {
 			msg = append(msg, fmt.Sprintf("field '%s' failed on '%s'", e.Field(), e.Tag()))

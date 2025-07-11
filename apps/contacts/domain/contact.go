@@ -51,3 +51,14 @@ type Contact struct {
 	// CityCode represents the city or town code (e.g. DANE).
 	CityCode string
 }
+
+// ValidateNames  check if name combination is correct
+func ValidateNames(legal, first, last string) error {
+	if legal != "" && (first != "" || last != "") {
+		return ErrInvalidNameCombination
+	}
+	if legal == "" && (first == "" || last == "") {
+		return ErrMissingName
+	}
+	return nil
+}
