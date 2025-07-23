@@ -6,18 +6,21 @@ import (
 	"github.com/flockstore/mannaiah-backend/apps/contacts/domain"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"go.uber.org/zap"
 	"strings"
 )
 
 // Handler manages HTTP routes for contact operations.
 type Handler struct {
+	logger   *zap.SugaredLogger
 	service  domain.ContactService
 	validate *validator.Validate
 }
 
 // New creates a new Handler with the given ContactService.
-func New(service domain.ContactService) *Handler {
+func New(service domain.ContactService, l *zap.SugaredLogger) *Handler {
 	return &Handler{
+		logger:   l,
 		service:  service,
 		validate: validator.New(),
 	}
@@ -35,11 +38,16 @@ func (h *Handler) RegisterRoutes(router fiber.Router) {
 // CreateContact handles POST /contacts to create a new contact.
 func (h *Handler) CreateContact(c *fiber.Ctx) error {
 	var input ContactInput
+
 	if err := c.BodyParser(&input); err != nil {
+		h.logger.Debug("Failed to parse body", zap.Error(err))
 		return fiber.NewError(fiber.StatusBadRequest, "invalid JSON")
 	}
+
 	if err := h.validate.Struct(&input); err != nil {
-		return mapValidationErrors(err)
+		me := mapValidationErrors(err)
+		h.logger.Debug("Failed to parse body", zap.Error(me))
+		return me
 	}
 
 	domainContact := ToDomainContact(input)
@@ -87,10 +95,13 @@ func (h *Handler) PatchContact(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var patch ContactPatchInput
 	if err := c.BodyParser(&patch); err != nil {
+		h.logger.Debug("Failed to parse body", zap.Error(err))
 		return fiber.NewError(fiber.StatusBadRequest, "invalid JSON")
 	}
 	if err := h.validate.Struct(&patch); err != nil {
-		return mapValidationErrors(err)
+		me := mapValidationErrors(err)
+		h.logger.Debug("Failed to parse body", zap.Error(me))
+		return me
 	}
 
 	domainPatch := ToDomainPatch(patch)

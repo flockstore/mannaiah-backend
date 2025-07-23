@@ -31,7 +31,7 @@ func main() {
 
 	repo := repository.NewPostgresContactRepository(db)
 	svc := service.NewContactService(repo)
-	handler := http.New(svc)
+	handler := http.New(svc, logg)
 
 	srv := httptransport.New(httptransport.Options{
 		Port:   cfg.Port,
