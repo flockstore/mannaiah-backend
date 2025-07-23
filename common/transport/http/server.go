@@ -56,7 +56,7 @@ func New(opts Options) *Server {
 		opts.Routes(app)
 	}
 
-	app.Get("/healthz", func(c *fiber.Ctx) error {
+	app.Get("/internal/healthz", func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusOK)
 	})
 
