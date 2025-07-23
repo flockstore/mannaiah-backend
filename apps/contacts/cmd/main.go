@@ -2,6 +2,11 @@ package main
 
 import (
 	"context"
+	"github.com/flockstore/mannaiah-backend/apps/contacts/http"
+	"github.com/flockstore/mannaiah-backend/apps/contacts/repository"
+	"github.com/flockstore/mannaiah-backend/apps/contacts/service"
+	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5"
 	"log"
 
 	appconfig "github.com/flockstore/mannaiah-backend/apps/contacts/config"
@@ -19,13 +24,25 @@ func main() {
 
 	logg := logger.New(cfg.LogLevel, nil)
 
+	db, err := pgx.Connect(context.Background(), cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	repo := repository.NewPostgresContactRepository(db)
+	svc := service.NewContactService(repo)
+	handler := http.New(svc)
+
 	srv := httptransport.New(httptransport.Options{
 		Port:   cfg.Port,
 		Logger: logg,
-		Routes: nil,
+		Routes: func(router fiber.Router) {
+			handler.RegisterRoutes(router)
+		},
 	})
 
 	if err := srv.Start(context.Background()); err != nil {
 		logg.Fatal("server stopped with error", err)
 	}
+
 }
